@@ -3,4 +3,5 @@
 
 /server/build
 /server/node_modules
+/server/.clinic
 /server/.env
