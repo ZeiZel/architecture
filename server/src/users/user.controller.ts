@@ -1,9 +1,16 @@
 import { BaseController } from '../common/base.controller';
 import { LoggerService } from '../logger/logger.service';
 import { NextFunction, Request, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+import { TYPES } from '../types';
+import { ILogger } from '../logger/logger.interface';
+import { HTTPError } from '../errors/http-error.class';
+import { IUsersController } from './users.controller.interface';
 
-export class UserController extends BaseController {
-	constructor(logger: LoggerService) {
+@injectable()
+export class UserController extends BaseController implements IUsersController {
+	constructor(@inject(TYPES.ILogger) logger: ILogger) {
 		super(logger);
 
 		this.bindRoutes([
@@ -20,7 +27,9 @@ export class UserController extends BaseController {
 		]);
 	}
 
-	login(req: Request, res: Response, next: NextFunction) {}
+	login(req: Request, res: Response, next: NextFunction): void {
+		next(new HTTPError(401, 'Ошибка'));
+	}
 
-	register(req: Request, res: Response, next: NextFunction) {}
+	register(req: Request, res: Response, next: NextFunction): void {}
 }

@@ -1,13 +1,17 @@
 import { Router, Response } from 'express';
 import { LoggerService } from '../logger/logger.service';
 import { IControllerRoute } from './route.interface';
+import { injectable } from 'inversify';
+import 'reflect-metadata';
+import { ILogger } from '../logger/logger.interface';
 
 // прототип для всех контроллеров
+@injectable()
 export abstract class BaseController {
 	private readonly _router: Router;
-	private logger: LoggerService;
+	private logger: ILogger;
 
-	constructor(logger: LoggerService) {
+	constructor(logger: ILogger) {
 		this.logger = logger;
 		this._router = Router();
 	}
@@ -33,7 +37,7 @@ export abstract class BaseController {
 	}
 
 	// тут нам нужно подвязывать роуты к контроллеру
-	protected bindRoutes(routes: IControllerRoute[]) {
+	protected bindRoutes(routes: IControllerRoute[]): void {
 		for (const route of routes) {
 			this.logger.log(`${route.method} ${route.path}`);
 			const handler = route.func.bind(this); // контекст роута привязываем к контексту контроллера

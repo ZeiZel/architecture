@@ -6,7 +6,8 @@
     "emitDecoratorMetadata": true,
     "module": "CommonJS",
     "moduleResolution": "node",
-    "outDir": "./dist",
-    "allowSyntheticDefaultImports": true
+    "outDir": "./build",
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true
   }
 }
