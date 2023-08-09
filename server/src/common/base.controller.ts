@@ -40,8 +40,12 @@ export abstract class BaseController {
 	protected bindRoutes(routes: IControllerRoute[]): void {
 		for (const route of routes) {
 			this.logger.log(`${route.method} ${route.path}`);
+			// привязываем контекст посредников, чтобы он оставался внутри них самих
+			const middleware = route.middlewares?.map((mw) => mw.execute.bind(mw));
 			const handler = route.func.bind(this); // контекст роута привязываем к контексту контроллера
-			this.router[route.method](route.path, handler); // вызываем функцию по роуту
+			// если будут middlewares, то выполняем сначала их, а потом основной хендлер
+			const pipeline = middleware ? [...middleware, handler] : handler;
+			this.router[route.method](route.path, pipeline); // вызываем функцию по роуту
 		}
 	}
 }

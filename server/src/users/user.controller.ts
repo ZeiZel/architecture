@@ -1,16 +1,23 @@
 import { BaseController } from '../common/base.controller';
-import { LoggerService } from '../logger/logger.service';
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { TYPES } from '../types';
 import { ILogger } from '../logger/logger.interface';
 import { HTTPError } from '../errors/http-error.class';
-import { IUsersController } from './users.controller.interface';
+import { IUserController } from './user.controller.interface';
+import { UserLoginDto } from './dto/user-login.dto';
+import { UserRegisterDto } from './dto/user-register.dto';
+import { IUserService } from './user.service.interface';
+import { USER_ALREADY_EXISTS } from './user.constants';
+import { ValidateMiddleware } from '../common/validate.middleware';
 
 @injectable()
-export class UserController extends BaseController implements IUsersController {
-	constructor(@inject(TYPES.ILogger) logger: ILogger) {
+export class UserController extends BaseController implements IUserController {
+	constructor(
+		@inject(TYPES.ILogger) logger: ILogger,
+		@inject(TYPES.UserService) private userService: IUserService,
+	) {
 		super(logger);
 
 		this.bindRoutes([
@@ -18,18 +25,30 @@ export class UserController extends BaseController implements IUsersController {
 				path: '/login',
 				method: 'post',
 				func: this.login,
+				middlewares: [new ValidateMiddleware(UserLoginDto)],
 			},
 			{
 				path: '/register',
 				method: 'post',
 				func: this.register,
+				middlewares: [new ValidateMiddleware(UserRegisterDto)],
 			},
 		]);
 	}
 
-	login(req: Request, res: Response, next: NextFunction): void {
+	login(req: Request<{}, {}, UserLoginDto>, res: Response, next: NextFunction): void {
 		next(new HTTPError(401, 'Ошибка'));
 	}
 
-	register(req: Request, res: Response, next: NextFunction): void {}
+	async register(
+		{ body }: Request<{}, {}, UserRegisterDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> {
+		const result = await this.userService.createUser(body);
+
+		if (!result) return next(new HTTPError(401, USER_ALREADY_EXISTS));
+
+		this.ok(res, result);
+	}
 }
