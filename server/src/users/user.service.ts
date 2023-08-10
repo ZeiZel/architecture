@@ -36,4 +36,8 @@ export class UserService implements IUserService {
 
 		return newUser.comparePassword(password);
 	}
+
+	getUserInfo(email: string): Promise<UserModel | null> {
+		return this.userRepository.find(email);
+	}
 }
