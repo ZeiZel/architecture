@@ -36,8 +36,16 @@ export class UserController extends BaseController implements IUserController {
 		]);
 	}
 
-	login(req: Request<{}, {}, UserLoginDto>, res: Response, next: NextFunction): void {
-		next(new HTTPError(401, 'Ошибка'));
+	async login(
+		req: Request<{}, {}, UserLoginDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> {
+		const result = await this.userService.validateUser(req.body);
+
+		if (!result) return next(new HTTPError(401, 'Ошибка авторизации', 'login'));
+
+		this.ok(res, {});
 	}
 
 	async register(

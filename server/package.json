@@ -4,6 +4,8 @@
   "scripts": {
     "start": "nodemon",
     "build": "tsc",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:generate": "prisma generate",
     "lint": "eslint ./src/**",
     "lint:fix": "eslint ./src/** --fix",
     "monitor:users": "clinic doctor --on-port 'autocannon -m POST localhost:8000/users/register' -- node build/main.js"

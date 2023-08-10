@@ -4,4 +4,6 @@
 /server/build
 /server/node_modules
 /server/.clinic
+/server/prisma/dev.db
+/server/prisma/dev.db-journal
 /server/.env

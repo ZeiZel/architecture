@@ -7,6 +7,8 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { TYPES } from './types';
 import { json } from 'body-parser';
+import { ConfigService } from './config/config.service';
+import { PrismaService } from './database/prisma.service';
 
 @injectable()
 export class App {
@@ -16,17 +18,23 @@ export class App {
 	logger: ILogger;
 	userController: UserController;
 	exceptionFilter: ExceptionFilter;
+	configService: ConfigService;
+	prismaService: PrismaService;
 
 	constructor(
 		@inject(TYPES.ILogger) logger: ILogger,
 		@inject(TYPES.UserController) userController: UserController,
 		@inject(TYPES.ExceptionFilter) exceptionFilter: ExceptionFilter,
+		@inject(TYPES.ConfigService) configService: ConfigService,
+		@inject(TYPES.PrismaService) prismaService: PrismaService,
 	) {
 		this.app = express();
 		this.port = 8000;
 		this.logger = logger;
 		this.userController = userController;
 		this.exceptionFilter = exceptionFilter;
+		this.configService = configService;
+		this.prismaService = prismaService;
 	}
 
 	useMiddleware() {
@@ -45,6 +53,7 @@ export class App {
 		this.useMiddleware();
 		this.useRoutes();
 		this.useExceptionFilter();
+		await this.prismaService.connect();
 		this.server = this.app.listen(this.port);
 		this.logger.log(`Сервер запущен на http://localhost:${this.port}`);
 	}
